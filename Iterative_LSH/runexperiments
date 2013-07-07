@@ -1,0 +1,9 @@
+#!/bin/bash
+
+for a in $(seq 38000 1000 50000)
+  do
+    ./lsh_docs_iter ../../HBLCoClust_test/datasets/dadosdissertacao.agg /dev/null $a >> results/dociter_times
+    ./lsh_docs_rand ../../HBLCoClust_test/ddatasets/dadosdissertacao.agg /dev/null $a >> results/docrand_times
+    #./lsh_idx_iter ../../HBLCoClust_test/ddatasets/accidents.dat results/accidents.lshiter $a >> results/idxiter_times
+    #./lsh_idx_rand ../../HBLCoClust_test/ddatasets/accidents.dat results/accidents.lshrand $a >> results/idxrand_times
+  done

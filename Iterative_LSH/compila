@@ -1,0 +1,5 @@
+#!/bin/bash
+g++ -o lsh_idx_rand lsh_idx_rand.cpp -Ofast -std=c++11
+g++ -o lsh_idx_iter lsh_idx_iter.cpp -Ofast -std=c++11
+g++ -o lsh_docs_rand lsh_docs_rand.cpp -Ofast -std=c++11
+g++ -o lsh_docs_iter lsh_docs_iter.cpp -Ofast -std=c++11
