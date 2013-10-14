@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from collections import Counter
 from scipy.stats import chisquare
 from random import sample
+import gc
 
 def test_uniformity(hist, bins):
     c = np.zeros(bins)
@@ -14,7 +15,7 @@ def test_uniformity(hist, bins):
 
     return pvalue, likelihood
     
-n_hashes = 10000
+n_hashes = 50000 # 5x to 10x
 n_bins = 5000
 P = 7577
 n_feats = 5000
@@ -25,7 +26,7 @@ c_seq = Counter()
 c_rnd_min = Counter()
 c_seq_min = Counter()
 
-print 'Experiment\t\tp-value\tResult'
+#print 'Experiment\t\tp-value\tResult'
 
 for it in range(no_of_experiments):
     x = np.random.random_integers(1,P-1)
@@ -40,38 +41,48 @@ for it in range(no_of_experiments):
     hist = np.array([np.mod(h(x), n_bins) for h in hf])
     (pvalue, result) = test_uniformity(hist,n_bins)
     c_rnd.update([result])
-    print 'Random hashes:\t\t%.2f\t%s' % (pvalue, result)
-
+    #print 'Random hashes:\t\t%.2f\t%s' % (pvalue, result)
+    del hist
+    gc.collect()
+    
     k1, k2 = a[0]*x, b[0]+x
     k = np.mod(k1+k2,P)
     hk = np.zeros(n_hashes)
     ik=k1
     for i in range(n_hashes):
-        hk[i] = np.mod(ik,P)
-        ik += k
+        ik = np.mod(ik+k,P)
+        hk[i] = ik#np.mod(ik,P)
+        #ik += k
     hk = np.mod(hk,n_bins)
     pvalue, result = test_uniformity(hk,n_bins)
     c_seq.update([result])
-    print 'Seq. hashes:\t\t%.2f\t%s' % (pvalue, result)
+    #print 'Seq. hashes:\t\t%.2f\t%s' % (pvalue, result)
+    del hk
+    gc.collect()
     
     x = np.array(sorted(sample(range(1,P-1),n_feats)))
 
     hist = np.array([np.argmin(h(x)) for h in hf])
     pvalue, result = test_uniformity(hist,n_feats)
     c_rnd_min.update([result])
-    print 'Random min-hashes:\t%.2f\t%s' % (pvalue, result)
+    #print 'Random min-hashes:\t%.2f\t%s' % (pvalue, result)
+    del hist
+    gc.collect()    
 
     hk = np.zeros((n_feats, n_hashes))
     z1 = a[0]*x
-    z2 = np.remainder(b[0]+x,P)
+    z2 = b[0]+x #np.remainder(b[0]+x,P)
     for i in range(n_hashes):
-        z1 += z2
-        hk[:,i]= np.remainder(z1,P)
+        z1 = np.remainder(z1+z2,P)        
+        hk[:,i]= z1#np.remainder(z1,P)
     hf = np.argmin(hk,axis=0)
     pvalue, result = test_uniformity(hf,n_feats)
     c_seq_min.update([result])
-    print 'Seq. min-hashes:\t%.2f\t%s' % (pvalue, result)
-    print '----------------'
+    #print 'Seq. min-hashes:\t%.2f\t%s' % (pvalue, result)
+    #print '----------------'
+    del hk
+    del hf
+    gc.collect()
 
 print 'Final results: '
 print 'Random hashes:\t%s' % c_rnd
