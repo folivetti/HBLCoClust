@@ -1,0 +1,6 @@
+#!/bin/sh
+
+mkdir biclusters
+mkdir candidates
+mkdir lsh
+mkdir slsh
