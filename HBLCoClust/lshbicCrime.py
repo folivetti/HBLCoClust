@@ -1,4 +1,5 @@
 import sys
+import glob
 
 from collections import defaultdict, Counter
 import os
@@ -117,28 +118,8 @@ def main(dataset, lshparams, (min_rows,min_cols), thr, sparse):
     # generate biclusters
     link( candata, bic.genbic, bicdata, (bic.getinfo(agdataO), probabilityO, thr, (min_rows,min_cols), sparse, False) )
     timer.send('Gen. Bicluster')
-
-    #ic.InClose2( dataset, bic.getinfo(agdataO), min_rows, min_cols )
-    #timer.send('Gen. InClose2')
+   
     
-    # Now do the same with the features as keys:
-    '''
-    # generate lsh keys and sort by the generated hash key
-    link( agdataF, lsh.genlsh, lshdata, (lshparams, probabilityF, thr,['']) )
-    sortfile(lshdata,slshdata)        
-    timer.send('LSH')
-    
-    # put lsh data into buckets
-    link( slshdata, lsh.reducelsh, candataU )
-    sortfile( candataU, candata )
-    pp.mergecand( candata )
-    timer.send('Reduce LSH')
-    #candstats(dataset , bic.getinfo(agdataO))
-    
-    # generate biclusters
-    link( candata, bic.genbic, bicdata, (bic.getinfo(agdataO), probabilityO, thr, (min_rows,min_cols), sparse, True), append=True )
-    timer.send('Gen. Bicluster')
-    '''
     timer.close()
 
     #pp.filterbics(bicdata)
@@ -146,43 +127,20 @@ def main(dataset, lshparams, (min_rows,min_cols), thr, sparse):
     #pp.hierclust(dataset,7)
     pp.uncovered(dataset, bic.getinfo(agdataO))
     
-    ev.stats(dataset)           # print some results statistics
-    ev.microprecision(dataset)  # calculate the microprecision if the objects have class embedded on their names
-    ev.NMI(dataset)
-    ev.PMI(dataset)
-    #net.genetwork(dataset)      # generate a network of objects and features
+    
+if __name__ == "__main__":   
+    
+    print 'Crime '
 
-    #ev.stats(dataset,'LSH')           # print some results statistics
-    #ev.microprecision(dataset,'LSH')  # calculate the microprecision if the objects have class embedded on their names
-    #ev.NMI(dataset,'LSH')
-    #ev.PMI(dataset,'LSH')
-    
-if __name__ == "__main__":
+    for fname in glob.glob('datasets/crimebic*.data'):
+        dataset = fname.split('/')[1][:-5]
+        print dataset
+        #dataset = 'crime'    # dataset name
+        nhashes,nkeys = 10,7  # lsh parameters
+        min_rows, min_cols = 100,7 # row, col thresholds
+        thr = 0.0            # probability threshold
+        sparse = 1.0            # sparseness rate    
+        main(dataset, (nhashes,nkeys), (min_rows,min_cols), thr, sparse)
+        print
+        
 
-    # HEY LISTEN!
-    # FILTER BICLUSTERS BY SORTING THEM AND SELECTING
-    # THOSE THAT COVER EVERYTHING FOUND
-    # AFTER THAT, APPLIES HIERARCHICAL CLUSTERING TO
-    # DEFINE MORE INFORMATIVE AND LARGE CLUSTERS
-   
-    dataset = 'classic3'    # dataset name
-    nhashes,nkeys = 2000,3  # lsh parameters
-    min_rows, min_cols = 50,4 # row, col thresholds
-    thr = 0.2            # probability threshold
-    sparse = 0.5            # sparseness rate    
-    main(dataset, (nhashes,nkeys), (min_rows,min_cols), thr, sparse)
-    
-    dataset = 'multi5'    # dataset name
-    nhashes,nkeys = 1000,3  # lsh parameters
-    min_rows, min_cols = 5,5 # row, col thresholds
-    thr = 0.95            # probability threshold
-    sparse = 0.5            # sparseness rate    
-    main(dataset, (nhashes,nkeys), (min_rows,min_cols), thr, sparse)
-    
-    dataset = 'multi10'    # dataset name
-    nhashes,nkeys = 2000,3  # lsh parameters
-    min_rows, min_cols = 5,5 # row, col thresholds
-    thr = 0.95            # probability threshold
-    sparse = 0.5            # sparseness rate
-    main(dataset, (nhashes,nkeys), (min_rows,min_cols), thr, sparse)
-    

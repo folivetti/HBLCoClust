@@ -148,10 +148,10 @@ def main(dataset, lshparams, (min_rows,min_cols), thr, sparse):
     ev.NMI(dataset)
     ev.PMI(dataset)
 
-    ev.stats(dataset,'LSH')           # print some results statistics
-    ev.microprecision(dataset,'LSH')  # calculate the microprecision if the objects have class embedded on their names
-    ev.NMI(dataset,'LSH')
-    ev.PMI(dataset,'LSH')
+    #ev.stats(dataset,'LSH')           # print some results statistics
+    #ev.microprecision(dataset,'LSH')  # calculate the microprecision if the objects have class embedded on their names
+    #ev.NMI(dataset,'LSH')
+    #ev.PMI(dataset,'LSH')
     
 if __name__ == "__main__":   
     
