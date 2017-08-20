@@ -1,0 +1,1 @@
+sort -u out.txt | sed '/^\s*$/d' > outS.txt
