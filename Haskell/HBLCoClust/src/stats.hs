@@ -25,26 +25,32 @@ parseFile file = M.fromList $ map parseLine (lines file )
   where
     parseLine line = let wl = words line in (head wl, S.fromList $ tail wl)
 
+-- |'parseBic' parses the bicluster file to a list of tuples
+-- representing the rows and columns of a bicluster, respectively
 parseBic :: String -> [([String], [String])]
 parseBic file = map parseLine $ lines file
   where
-    parseLine line = let (o,f) = span (/=',') line in (words o, words $ tail f)
+    parseLine line = let (o,f) = span (/=',') line 
+                     in  (words o, words $ tail f)
 
---length' = fromIntegral . length
-
+-- |'mean' calculates the mean of a list of numbers
 mean :: (Real a, Fractional b) => [a] -> b
-mean l = realToFrac (sum l) / (genericLength l)
+mean xs = realToFrac (sum xs) / (genericLength xs)
 
-std l = sqrt $ realToFrac sumSqr / (genericLength l)
+-- |'std' calculates the std of a list of numbers
+std xs = sqrt $ realToFrac sumSqr / (genericLength xs)
   where
-    sumSqr = sum $ map (\x -> (x - mean')^2) l
-    mean'  = mean l
+    sumSqr = sum $ map (\x -> (x - mean')^2) xs
+    mean'  = mean xs
 
-coverage l = fromIntegral $ S.size $ S.unions $ map S.fromList l -- nub $ foldl' (++) [] l
+-- |'coverage' computes the coverage for the objects or features of 
+-- the data set.
+coverage xs = fromIntegral $ S.size $ S.unions $ map S.fromList xs
 
-calcPurity l = maximum counts / sum counts
+-- |'purity' calculates the purity of a cluster.
+calcPurity xs = maximum counts / sum counts
   where
-    counts = M.elems $ M.fromListWith (+) $ zip (map extractLabel l) (repeat 1)
+    counts = M.elems $ M.fromListWith (+) $ zip (map extractLabel xs) (repeat 1)
     extractLabel w = toInteger $ tail $ snd $ span (/='.') w
     toInteger x = read x :: Integer
 

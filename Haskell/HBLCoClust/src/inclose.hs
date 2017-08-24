@@ -17,6 +17,12 @@ import Text.Format
 import qualified Data.HashSet as S
 import qualified Data.HashMap.Strict as M
 
+-- | support functions and operators
+
+(∩) s1 s2 =  S.intersection s1 s2
+
+toString (os, fs) = (intercalate " " os) ++ "," ++ (intercalate " " fs)
+
 -- |'parseFile' parses a space separated file 
 -- to a list of lists of Double
 parseFile :: String -> M.HashMap String (S.HashSet String)
@@ -24,30 +30,42 @@ parseFile file = M.fromList $ map parseLine (lines file )
   where
     parseLine line = let wl = words line in (head wl, S.fromList $ tail wl)
 
+-- |'parseRegion' parses the .region file
+-- containing a list of features to explore
 parseRegion :: String -> [[String]]
 parseRegion file = map parseLine $ lines file
   where
-    parseLine line = words line --let (o,f) = span (/=',') line in (words o, words $ tail f)
+    parseLine line = words line
 
-(∩) s1 s2 =  S.intersection s1 s2
-
-inClose dataset dataRev nrows ncols feats = inClose' nextF (intent nextF, [nextF])
+-- |'inClose' algorithm
+inClose dataset dataRev nrows ncols feats = inClose' (firstFeat, extent firstFeat, [firstFeat])
   where
-    nextF = head feats
-    intent fi = dataRev M.! fi
-    inClose' fi (o, f) = bic ++ concat [inClose' fi'' (o'', f'') | (fi'', o'', f'') <- candidates]
+    firstFeat = head feats
+    extent fi = dataRev M.! fi
+
+    cannonical (fi', o'', f'') = all (/=o'') [o'' ∩ (extent fi'') | fi'' <- fst $ span (/=fi') feats, not (elem fi'' f'')]
+
+    -- |'inClose'' is the recursive algorithm
+    -- fi is the last feature inserted into the co-cluster
+    -- defined by a list 'os' of objects and 'fs' of features
+    -- *i one element, *s a list
+    inClose' (fi, os, fs)
+      | length closedFeats >= ncols = coCluster : (concat $ map inClose' candidates)
+      | otherwise                   = concat $ map inClose' candidates
       where
-        bic         = if length f' >= ncols then [(S.toList o, f')] else []
-        f'          = f ++ [f'' | (f'', o'') <- inserts, o'' == o]
-        inserts     = filterByRow [(f'', o ∩ (intent f'')) | f'' <- nextFeats]
+        coCluster   = (S.toList os, closedFeats)
+        closedFeats = fs ++ map fst canClose 
 
-        candidates   = [(fi', o'', f ++ [fi']) | (fi',o'') <- inserts, o'' /= o, cannonical (o'', f ++ [fi']) fi']
-        cannonical (o'', f'') fi' = all (/=o'') [o'' ∩ (intent fi'') | fi'' <- fst $ span (/=fi') feats, not (elem fi'' f'')]
+        -- generates (fi', os')
+        inserts     = filterByRow [(fi', os ∩ (extent fi')) | fi' <- nextFeats]
+        canClose    = filter ((==os) . snd) inserts
+        cannotClose = filter ((/=os) . snd) inserts
 
+        -- generates (fi', os', fs')
+        candidates  = filter cannonical $ map genCandidate cannotClose
         nextFeats   = tail $ snd $ span (/=fi) feats
         filterByRow = filter (\(f'',o'') -> S.size o''>= nrows)
-
-toString (o,f) = (intercalate " " o) ++ "," ++ (intercalate " " f)
+        genCandidate (fi', os') = (fi', os', fs ++ [fi'])
 
 -- |'main' executa programa principal
 main :: IO ()
