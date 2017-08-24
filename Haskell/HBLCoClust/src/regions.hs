@@ -17,45 +17,64 @@ import Text.Format
 import qualified Data.HashSet as S
 import qualified Data.HashMap.Strict as M
 
+type Dataset = M.HashMap String (S.HashSet String)
+
+-- | support functions and operators
+
+toString (o,f) = (intercalate " " o) ++ "," ++ (intercalate " " f)
+toStringFeat f = intercalate " " f
+
+sortedUnique xs = map head $ groupBy (==) $ sort xs
+
+(∩) s1 s2 =  S.intersection s1 s2
+
 -- |'parseFile' parses a space separated file 
 -- to a list of lists of Double
-parseFile :: String -> M.HashMap String (S.HashSet String)
+parseFile :: String -> Dataset
 parseFile file = M.fromList $ map parseLine (lines file )
   where
     parseLine line = let wl = words line in (head wl, S.fromList $ tail wl)
 
+-- |'parseCand' parses the .candidates file
 parseCand :: String -> [[String]]
 parseCand file = map words $ lines file
 
+-- |'findRegions' returns the region defined by a list of objects.
+--  The region is formed by the features common to every obj and
+-- the objects common to every feature of feats'.
+findRegions :: Dataset -> Dataset -> [[String]] -> [([String],[String])]
 findRegions dataset dataRev candidates = map getIntersection candidates
   where
     getIntersection objs = 
       let
-        objs'  = if length feats' > 0 then S.toList $ foldl1 S.intersection $ map (dataRev M.!) feats' else []
-        feats' = S.toList $ foldl1 S.intersection $ map (dataset M.!) objs
+        objs'  = if length feats' > 0 
+                 then S.toList $ foldl1 (∩) $ map (dataRev M.!) feats' 
+                 else []
+        feats' = S.toList $ foldl1 (∩) $ map (dataset M.!) objs
       in (objs', feats')
 
+-- |'expand' expands the region further by allowing features with at least 
+-- nrows objects from the list. Returns the subsets of features to enumreate.
+expand :: Dataset -> Dataset -> Int -> Int -> [([String],[String])] -> [[String]]
 expand dataset dataRev nrows ncols regions = map expandRegion regions
   where
-    expandRegion (obj, feat) = nub $ sort $ feat ++ feat'
-      where
-        --obj' = [ o | o <- M.keys dataset, f' o >= ncols]
-        --f' o = S.size $ S.intersection (dataset M.! o) setFeat
-        --setFeat = S.fromList feat
-        feat' = [ f | f <- M.keys dataRev, o' f >= nrows]
-        o' f = S.size $ S.intersection (dataRev M.! f) setObj
-        setObj = S.fromList obj
+    expandRegion (obj, feat) = 
+      let
+        feat'        = filter (\f -> commonObjs f >= nrows) $ M.keys dataRev
+        commonObjs f = S.size $ (objsOf f) ∩ objSet
+        objsOf f     = dataRev M.! f
+        objSet       = S.fromList obj
+      in sortedUnique $ feat ++ feat'
 
+-- |'reduce' removes the repeated regions found after the expansion
+reduce :: [[String]] -> [[String]]
 reduce regions = map S.toList unique
   where
     unique = map S.unions grouped
     grouped = groupBy anyIntersection setRegions
     setRegions = map S.fromList regions
-    anyIntersection s1 s2 = let inter = S.intersection s1 s2 
+    anyIntersection s1 s2 = let inter = s1 ∩ s2 
                             in (inter == s1) || (inter == s2)
-
-toString (o,f) = (intercalate " " o) ++ "," ++ (intercalate " " f)
-toStringFeat f = intercalate " " f
 
 -- |'main' executa programa principal
 main :: IO ()

@@ -40,7 +40,7 @@ main = do
     runResourceT $ S.writeFile fileOut
                  $ S.map (intercalate " ")
                  $ S.map (map snd)
-                 $ S.filter (\xs -> length xs > nrows) 
+                 $ S.filter (\xs -> length xs >= nrows) 
                  $ mapped S.toList 
                  $ S.groupBy (\x y -> fst x == fst y) 
                  $ S.map parseFile $ S.readFile fileIn

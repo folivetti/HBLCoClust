@@ -28,25 +28,33 @@ parseFile line = (head wl, tail wl)
   where
     wl = words line
 
-lsh :: Int -> Int -> [(Int,Int)] -> (String, [String]) -> [String]
-lsh r b rnd (label, ws) = map (\l -> format "{0} {1}" [l, label]) lshList
-  where
-    lshList   = sort $ map (intercalate "_") $ map (\(x,y) -> show y : x) $ zip (Sp.chunksOf b minhash) [1..]
-    minhash   = [show $ minimum $ map ((hash' n) . hash) ws | n <- rnd]
-    hash' (n1,n2) h = (n1*h + n2) `mod` largeprime
-
 largeprime = 109297
 
--- |'main' executa programa principal
+hash' :: (Int, Int) -> Int -> Int
+hash' (n1, n2) h = (n1*h + n2) `mod` largeprime
+
+-- |'lsh' generates 'r' LSH signatures with 'b' hashes each
+lsh :: Int -> Int -> [(Int,Int)] -> (String, [String]) -> [String]
+lsh r b rnd (label, ws) = map output lshSigns
+  where
+    output signature = format "{0} {1}" [signature, label]
+    lshSigns         = sort $ map (intercalate "_") lshList
+    lshList          = map addIdx $ zip (Sp.chunksOf b minhash) [1..]
+    addIdx (xs, idx) = show idx : xs
+    minhash          = map genSignature rnd
+    genSignature n   = show $ minimum $ map (hash' n) hashedWords
+    hashedWords      = map hash ws
+
+-- |'main' runs the main program
 main :: IO ()
 main = do
     args <- getArgs
     g <- getStdGen
 
     let 
-      dataName = args !! 0
-      r = read (args !! 1) :: Int
-      b = read (args !! 2) :: Int
+      dataName = args !! 0        -- dataset name
+      r = read (args !! 1) :: Int -- number of bands
+      b = read (args !! 2) :: Int -- hashes per bands
 
       fileIn  = "Datasets/" ++ dataName ++ ".data"
       fileOut = "LSH/" ++ dataName ++ ".lsh"
@@ -56,4 +64,5 @@ main = do
       rnd = zip n1 n2
       lsh' = lsh r b rnd
 
+    -- stream the input into parseFile -> lsh' and into the output
     runResourceT $ S.writeFile fileOut $ S.map unlines $ S.map lsh' $ S.map parseFile $ S.readFile fileIn
