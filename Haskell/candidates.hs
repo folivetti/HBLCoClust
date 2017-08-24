@@ -29,9 +29,12 @@ main :: IO ()
 main = do
     args <- getArgs
 
-    let fileIn  = args !! 0
-    let fileOut = args !! 1
-    let nrows   = read (args !! 2) :: Int
+    let
+      dataName  = args !! 0    
+      nrows   = read (args !! 1) :: Int
+
+      fileIn  = "LSH/" ++ dataName ++ ".lsh.sorted"
+      fileOut = "Candidates/" ++ dataName ++ ".cand"
 
     runResourceT $ S.writeFile fileOut
                  $ S.map (intercalate " ")

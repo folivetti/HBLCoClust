@@ -40,17 +40,19 @@ largeprime = 109297
 main :: IO ()
 main = do
     args <- getArgs
-
-    let fileIn = args !! 0
-    let fileOut = args !! 1
-    let r = read (args !! 2) :: Int
-    let b = read (args !! 3) :: Int
-    --runResourceT $ S.print $ S.map (\x -> map hash $ snd x) $ S.map parseFile $ S.readFile filename
-
     g <- getStdGen
-    let n1 = take (r*b) (randomRs (1, largeprime-1) g)
-    let n2 = take (r*b) (randomRs (1, largeprime-1) g)
-    let rnd = zip n1 n2
-    let lsh' = lsh r b rnd
+
+    let 
+      dataName = args !! 0
+      r = read (args !! 1) :: Int
+      b = read (args !! 2) :: Int
+
+      fileIn  = "Datasets/" ++ dataName ++ ".data"
+      fileOut = "LSH/" ++ dataName ++ ".lsh"
+
+      n1 = take (r*b) (randomRs (1, largeprime-1) g)
+      n2 = take (r*b) (randomRs (1, largeprime-1) g)
+      rnd = zip n1 n2
+      lsh' = lsh r b rnd
+
     runResourceT $ S.writeFile fileOut $ S.map unlines $ S.map lsh' $ S.map parseFile $ S.readFile fileIn
-    --print (lsh dataset r b n1 n2)
