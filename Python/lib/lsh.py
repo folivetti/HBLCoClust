@@ -3,9 +3,6 @@ import time
 from numpy import array, vectorize, remainder, argmin, where
 from numpy.random import  randint
 
-def notRep(l):
-    return len(list(set(l))) == len(l)
-
 @coroutine
 def genlsh( target,((nhs,nhashes), prob,thr, allowed) ):
 
@@ -22,13 +19,12 @@ def genlsh( target,((nhs,nhashes), prob,thr, allowed) ):
     while True:
         line = (yield)
         (obj,feats) = line.rstrip().split('\t')
-        feats = feats.split()        
+        feats = feats.split()
 
         feats = filter(lambda x: prob[x]>=thr and any( f in x for f in allowed ),feats)#[f for f in feats if prob[f]>=thr]
 
         # check if there are enough features to generate the hash keys
         if len(feats)>=nhashes:
-            
 
             h = maphash(feats)
             dh = dict( enumerate(feats) )
@@ -42,7 +38,7 @@ def genlsh( target,((nhs,nhashes), prob,thr, allowed) ):
                 minhashes[i] = dh[argmin(z1)] # get the feature with the min hash value
 
             # group permutated features in nhashes sized groups
-            lshs = ( '%s\t%s\n' % ('_'.join( minhashes[i:i+nhashes] ),obj) for i in range(0,nlisthashes-nhashes+1,nhashes) if notRep(minhashes[i:i+nhashes]))
+            lshs = ( '%s\t%s\n' % ('_'.join( minhashes[i:i+nhashes] ),obj) for i in range(0,nlisthashes-nhashes+1,nhashes))
             target.send(lshs)
             #target.send('\n')
             
@@ -58,9 +54,6 @@ def reducelsh(target):
         if len(line.rstrip()):
 
             (key, value) = line.rstrip().split('\t')
-
-            if len(set(key.split('_'))) < len(key.split('_')):
-                continue
                 
             if key == oldkey:
                 values.add(value)
