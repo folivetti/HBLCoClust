@@ -1,24 +1,25 @@
 {-|
-Module      : candidates
-Description : group lsh data into a candidate set
+Module      : inclose
+Description : InClose-2 algorithm for Formal Concepts Analysis
 Copyright   : (c) Fabrício Olivetti, 2017
 License     : GPL-3
 Maintainer  : fabricio.olivetti@gmail.com
+Version     : 0.1.0.0
 
-group the objects by lsh keys to become subspace regions to search for biclusters.
+Enummerative algorithm for Formal Concepts Analysis. Equivalent to find every dense co-cluster within a region for binary data sets.
 -}
 
 module Main where
 
 import System.Environment
-import Data.List (intercalate, any)
+import Data.List (intercalate, all)
 import Text.Format
-import qualified Data.Set as S
+import qualified Data.HashSet as S
 import qualified Data.HashMap.Strict as M
 
 -- |'parseFile' parses a space separated file 
 -- to a list of lists of Double
-parseFile :: String -> M.HashMap String (S.Set String)
+parseFile :: String -> M.HashMap String (S.HashSet String)
 parseFile file = M.fromList $ map parseLine (lines file )
   where
     parseLine line = let wl = words line in (head wl, S.fromList $ tail wl)
@@ -41,7 +42,7 @@ inClose dataset dataRev nrows ncols feats = inClose' nextF (intent nextF, [nextF
         inserts     = filterByRow [(f'', o ∩ (intent f'')) | f'' <- nextFeats]
 
         candidates   = [(fi', o'', f ++ [fi']) | (fi',o'') <- inserts, o'' /= o, cannonical (o'', f ++ [fi']) fi']
-        cannonical (o'', f'') fi' = any (==o'') [o'' ∩ (intent fi'') | fi'' <- fst $ span (/=fi') feats, not (elem fi'' f'')]
+        cannonical (o'', f'') fi' = all (/=o'') [o'' ∩ (intent fi'') | fi'' <- fst $ span (/=fi') feats, not (elem fi'' f'')]
 
         nextFeats   = tail $ snd $ span (/=fi) feats
         filterByRow = filter (\(f'',o'') -> S.size o''>= nrows)

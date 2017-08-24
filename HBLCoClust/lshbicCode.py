@@ -112,82 +112,59 @@ def main(dataset, lshparams, (min_rows,min_cols), thr, sparse):
     sortfile( candataU, candata )
     pp.mergecand( candata )
     timer.send('Reduce LSH')
-    #candstats(dataset , bic.getinfo(agdataO))
+    candstats(dataset , bic.getinfo(agdataO))
     
     # generate biclusters
     link( candata, bic.genbic, bicdata, (bic.getinfo(agdataO), probabilityO, thr, (min_rows,min_cols), sparse, False) )
     timer.send('Gen. Bicluster')
-   
+  
     # Now do the same with the features as keys:
     
     # generate lsh keys and sort by the generated hash key
-    link( agdataF, lsh.genlsh, lshdata, (lshparams, probabilityF, thr,['']) )
-    sortfile(lshdata,slshdata)        
-    timer.send('LSH')
+    #link( agdataF, lsh.genlsh, lshdata, (lshparams, probabilityF, thr,['']) )
+    #sortfile(lshdata,slshdata)        
+    #timer.send('LSH')
     
     # put lsh data into buckets
-    link( slshdata, lsh.reducelsh, candataU )
-    sortfile( candataU, candata )
-    pp.mergecand( candata )
-    timer.send('Reduce LSH')
+    #link( slshdata, lsh.reducelsh, candataU )
+    #sortfile( candataU, candata )
+    #pp.mergecand( candata )
+    #timer.send('Reduce LSH')
     #candstats(dataset , bic.getinfo(agdataO))
     
     # generate biclusters
-    link( candata, bic.genbic, bicdata, (bic.getinfo(agdataO), probabilityO, thr, (min_rows,min_cols), sparse, True), append=True )
-    timer.send('Gen. Bicluster')
+    #link( candata, bic.genbic, bicdata, (bic.getinfo(agdataO), probabilityO, thr, (min_rows,min_cols), sparse, True), append=True )
+    #timer.send('Gen. Bicluster')
     
+    ic.InClose2( dataset, bic.getinfo(agdataO), min_rows, min_cols )
+    timer.send('Gen. InClose2')
+
     timer.close()
 
     #pp.filterbics(bicdata)
     pp.merge(dataset)
     #pp.hierclust(dataset,7)
-    pp.uncovered(dataset, bic.getinfo(agdataO))
+    #pp.uncovered(dataset, bic.getinfo(agdataO))
     
     ev.stats(dataset)           # print some results statistics
-    ev.microprecision(dataset)  # calculate the microprecision if the objects have class embedded on their names
-    ev.NMI(dataset)
-    ev.PMI(dataset)
+    #ev.microprecision(dataset)  # calculate the microprecision if the objects have class embedded on their names
+    #ev.NMI(dataset)
+    #ev.PMI(dataset)
+    
+    ev.stats(dataset, 'InClose')           # print some results statistics
+    #ev.microprecision(dataset, 'InClose')  # calculate the microprecision if the objects have class embedded on their names    
+    #ev.NMI(dataset, 'InClose')
+    #ev.PMI(dataset, 'InClose')
+        
+if __name__ == "__main__":
 
-    #ev.stats(dataset,'LSH')           # print some results statistics
-    #ev.microprecision(dataset,'LSH')  # calculate the microprecision if the objects have class embedded on their names
-    #ev.NMI(dataset,'LSH')
-    #ev.PMI(dataset,'LSH')
-    
-if __name__ == "__main__":   
-    
-    print 'House Votes 84 '
-    dataset = 'house-votes-84'    # dataset name
-    nhashes,nkeys = 1000,3  # lsh parameters
-    min_rows, min_cols = 10,10 # row, col thresholds
-    thr = 0.4            # probability threshold
-    sparse = 0.8            # sparseness rate    
+    sparse = 1.0            # sparseness rate    
+
+    print 'Spectra Chart 26_3'
+    dataset = 'spectraChart26_3'    # dataset name
+    nhashes,nkeys = 100,3  # lsh parameters
+    min_rows, min_cols = 2,16 # row, col thresholds
+    thr = 0.0            # probability threshold
     main(dataset, (nhashes,nkeys), (min_rows,min_cols), thr, sparse)
-    print
-    
-    #print 'Zoo'
-    #dataset = 'zoo'    # dataset name
-    #nhashes,nkeys = 1000,2  # lsh parameters
-    #min_rows, min_cols = 4,6 # row, col thresholds
-    #thr = 0.0             # probability threshold
-    #sparse = 1.0            # sparseness rate 
-    #main(dataset, (nhashes,nkeys), (min_rows,min_cols), thr, sparse)
-    #print
-    
-    #print 'Soybean Large'
-    #dataset = 'soybean-large'    # dataset name
-    #nhashes,nkeys = 1000,2  # lsh parameters
-    #min_rows, min_cols = 4,10 # row, col thresholds
-    #thr = 0.0            # probability threshold
-    #sparse = 0.8
-    #main(dataset, (nhashes,nkeys), (min_rows,min_cols), thr, sparse)
-    #print
-    
-    #print 'Soybean Small'
-    #dataset = 'soybean-small'    # dataset name
-    #nhashes,nkeys = 1000,2  # lsh parameters
-    #min_rows, min_cols = 4,8 # row, col thresholds
-    #thr = 0.1            # probability threshold
-    #sparse = 0.8
-    #main(dataset, (nhashes,nkeys), (min_rows,min_cols), thr, sparse)
-    
+    print    
     

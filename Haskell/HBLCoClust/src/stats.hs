@@ -1,11 +1,12 @@
 {-|
-Module      : candidates
-Description : group lsh data into a candidate set
+Module      : stats
+Description : print statistics about the co-clusters set
 Copyright   : (c) Fabrício Olivetti, 2017
 License     : GPL-3
 Maintainer  : fabricio.olivetti@gmail.com
+Version     : 0.1.0.0
 
-group the objects by lsh keys to become subspace regions to search for biclusters.
+Print statistics about the co-clusters set: number of co-clusters found, average number of rows and columns (with standard deviation), coverage and purity (for labeled examples).
 -}
 
 module Main where
@@ -14,12 +15,12 @@ import System.Environment
 import Data.List (genericLength, maximum)
 import Data.List.Split
 import Text.Format
-import qualified Data.Set as S
+import qualified Data.HashSet as S
 import qualified Data.HashMap.Strict as M
 
 -- |'parseFile' parses a space separated file 
 -- to a list of lists of Double
-parseFile :: String -> M.HashMap String (S.Set String)
+parseFile :: String -> M.HashMap String (S.HashSet String)
 parseFile file = M.fromList $ map parseLine (lines file )
   where
     parseLine line = let wl = words line in (head wl, S.fromList $ tail wl)
@@ -86,20 +87,21 @@ main = do
 
       purity     = map calcPurity $ map fst biclusters
 
-    print "Regions: "
-    print $ format "Number of biclusters = {0}" [show $ genericLength regions]
-    print $ format "Avg. rows = {0} +/- {1}" [show $ mean nrows', show $ std nrows']
-    print $ format "Avg. cols = {0} +/- {1}" [show $ mean ncols', show $ std ncols']
-    print "Coverage:"
-    print $ format "  rows = {0}% ({1}/{2})" [show $ 100*perrows', show $ covrows', show $ M.size dataset]
-    print $ format "  cols = {0}% ({1}/{2})" [show $ 100*percols', show $ covcols', show $ M.size dataRev]
-    print $ format "Purity: {0}" [show $ mean purity']
+    putStrLn "Regions: "
+    putStrLn $ format "Number of biclusters = {0}" [show $ genericLength regions]
+    putStrLn $ format "Avg. rows = {0} +/- {1}" [show $ mean nrows', show $ std nrows']
+    putStrLn $ format "Avg. cols = {0} +/- {1}" [show $ mean ncols', show $ std ncols']
+    putStrLn "Coverage:"
+    putStrLn $ format "  rows = {0}% ({1}/{2})" [show $ 100*perrows', show $ covrows', show $ M.size dataset]
+    putStrLn $ format "  cols = {0}% ({1}/{2})" [show $ 100*percols', show $ covcols', show $ M.size dataRev]
+    putStrLn $ format "Purity: {0}" [show $ mean purity']
 
-    print "\nBiclusters: "
-    print $ format "Number of biclusters = {0}" [show $ genericLength biclusters]
-    print $ format "Avg. rows = {0} +/- {1}" [show $ mean nrows, show $ std nrows]
-    print $ format "Avg. cols = {0} +/- {1}" [show $ mean ncols, show $ std ncols]
-    print "Coverage:"
-    print $ format "  rows = {0}% ({1}/{2})" [show $ 100*perrows, show $ covrows, show $ M.size dataset]
-    print $ format "  cols = {0}% ({1}/{2})" [show $ 100*percols, show $ covcols, show $ M.size dataRev]
-    print $ format "Purity: {0}" [show $ mean purity]
+    putStrLn ""
+    putStrLn "Biclusters: "
+    putStrLn $ format "Number of biclusters = {0}" [show $ genericLength biclusters]
+    putStrLn $ format "Avg. rows = {0} +/- {1}" [show $ mean nrows, show $ std nrows]
+    putStrLn $ format "Avg. cols = {0} +/- {1}" [show $ mean ncols, show $ std ncols]
+    putStrLn "Coverage:"
+    putStrLn $ format "  rows = {0}% ({1}/{2})" [show $ 100*perrows, show $ covrows, show $ M.size dataset]
+    putStrLn $ format "  cols = {0}% ({1}/{2})" [show $ 100*percols, show $ covcols, show $ M.size dataRev]
+    putStrLn $ format "Purity: {0}" [show $ mean purity]

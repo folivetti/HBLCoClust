@@ -1,11 +1,12 @@
 {-|
-Module      : candidates
-Description : group lsh data into a candidate set
+Module      : regions
+Description : Find the promising regions of co-clusters 
 Copyright   : (c) Fabrício Olivetti, 2017
 License     : GPL-3
 Maintainer  : fabricio.olivetti@gmail.com
+Version     : 0.1.0.0
 
-group the objects by lsh keys to become subspace regions to search for biclusters.
+Group the lsh buckets and filter those that defines promising regions containing co-clusters.
 -}
 
 module Main where
@@ -13,12 +14,12 @@ module Main where
 import System.Environment
 import Data.List (intercalate, nub, sort, groupBy)
 import Text.Format
-import qualified Data.Set as S
+import qualified Data.HashSet as S
 import qualified Data.HashMap.Strict as M
 
 -- |'parseFile' parses a space separated file 
 -- to a list of lists of Double
-parseFile :: String -> M.HashMap String (S.Set String)
+parseFile :: String -> M.HashMap String (S.HashSet String)
 parseFile file = M.fromList $ map parseLine (lines file )
   where
     parseLine line = let wl = words line in (head wl, S.fromList $ tail wl)

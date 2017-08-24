@@ -1,11 +1,12 @@
 {-|
 Module      : lsh
-Description : applies lsh to dyadic data set
+Description : applies lsh to a binary data set
 Copyright   : (c) Fabrício Olivetti, 2017
 License     : GPL-3
 Maintainer  : fabricio.olivetti@gmail.com
+Version     : 0.1.0.0
 
-applies LSH to categorical data for the first step of the HBLCoClust algorithm.
+applies LSH to categorical data for the first step of the HBLCoClust algorithm. Approximates Jaccard similarity.
 -}
 
 module Main where

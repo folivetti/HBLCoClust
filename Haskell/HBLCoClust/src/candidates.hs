@@ -4,6 +4,7 @@ Description : group lsh data into a candidate set
 Copyright   : (c) Fabrício Olivetti, 2017
 License     : GPL-3
 Maintainer  : fabricio.olivetti@gmail.com
+Version     : 0.1.0.0
 
 group the objects by lsh keys to become subspace regions to search for biclusters.
 -}

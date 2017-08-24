@@ -1,1 +1,0 @@
-ghc -o lsh lsh.hs -O2 -funfolding-use-threshold=16 -fexcess-precision -optc-ffast-math

@@ -144,9 +144,9 @@ def main(dataset, lshparams, (min_rows,min_cols), thr, sparse):
     pp.uncovered(dataset, bic.getinfo(agdataO))
     
     ev.stats(dataset)           # print some results statistics
-    ev.microprecision(dataset)  # calculate the microprecision if the objects have class embedded on their names
-    ev.NMI(dataset)
-    ev.PMI(dataset)
+    #ev.microprecision(dataset)  # calculate the microprecision if the objects have class embedded on their names
+    #ev.NMI(dataset)
+    #ev.PMI(dataset)
 
     #ev.stats(dataset,'LSH')           # print some results statistics
     #ev.microprecision(dataset,'LSH')  # calculate the microprecision if the objects have class embedded on their names
@@ -155,39 +155,11 @@ def main(dataset, lshparams, (min_rows,min_cols), thr, sparse):
     
 if __name__ == "__main__":   
     
-    print 'House Votes 84 '
-    dataset = 'house-votes-84'    # dataset name
-    nhashes,nkeys = 1000,3  # lsh parameters
-    min_rows, min_cols = 10,10 # row, col thresholds
-    thr = 0.4            # probability threshold
-    sparse = 0.8            # sparseness rate    
+    dataset = 'activate_in'    # dataset name 
+    nhashes,nkeys = 1000,3  # lsh parameters 
+    min_rows, min_cols = 2,2 # row, col thresholds 
+    thr = 0.00            # probability threshold    
+    sparse = 0.3            # sparseness rate     
     main(dataset, (nhashes,nkeys), (min_rows,min_cols), thr, sparse)
-    print
-    
-    #print 'Zoo'
-    #dataset = 'zoo'    # dataset name
-    #nhashes,nkeys = 1000,2  # lsh parameters
-    #min_rows, min_cols = 4,6 # row, col thresholds
-    #thr = 0.0             # probability threshold
-    #sparse = 1.0            # sparseness rate 
-    #main(dataset, (nhashes,nkeys), (min_rows,min_cols), thr, sparse)
-    #print
-    
-    #print 'Soybean Large'
-    #dataset = 'soybean-large'    # dataset name
-    #nhashes,nkeys = 1000,2  # lsh parameters
-    #min_rows, min_cols = 4,10 # row, col thresholds
-    #thr = 0.0            # probability threshold
-    #sparse = 0.8
-    #main(dataset, (nhashes,nkeys), (min_rows,min_cols), thr, sparse)
-    #print
-    
-    #print 'Soybean Small'
-    #dataset = 'soybean-small'    # dataset name
-    #nhashes,nkeys = 1000,2  # lsh parameters
-    #min_rows, min_cols = 4,8 # row, col thresholds
-    #thr = 0.1            # probability threshold
-    #sparse = 0.8
-    #main(dataset, (nhashes,nkeys), (min_rows,min_cols), thr, sparse)
     
     
