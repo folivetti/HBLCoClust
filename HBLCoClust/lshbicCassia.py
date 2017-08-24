@@ -155,39 +155,11 @@ def main(dataset, lshparams, (min_rows,min_cols), thr, sparse):
     
 if __name__ == "__main__":   
     
-    print 'House Votes 84 '
-    dataset = 'house-votes-84'    # dataset name
-    nhashes,nkeys = 1000,3  # lsh parameters
-    min_rows, min_cols = 10,10 # row, col thresholds
-    thr = 0.4            # probability threshold
-    sparse = 0.8            # sparseness rate    
+    dataset = 'bictrain_um1'    # dataset name 
+    nhashes,nkeys = 1000,3  # lsh parameters 
+    min_rows, min_cols = 10,100 # row, col thresholds 
+    thr = 0.00            # probability threshold    
+    sparse = 0.3            # sparseness rate     
     main(dataset, (nhashes,nkeys), (min_rows,min_cols), thr, sparse)
-    print
-    
-    #print 'Zoo'
-    #dataset = 'zoo'    # dataset name
-    #nhashes,nkeys = 1000,2  # lsh parameters
-    #min_rows, min_cols = 4,6 # row, col thresholds
-    #thr = 0.0             # probability threshold
-    #sparse = 1.0            # sparseness rate 
-    #main(dataset, (nhashes,nkeys), (min_rows,min_cols), thr, sparse)
-    #print
-    
-    #print 'Soybean Large'
-    #dataset = 'soybean-large'    # dataset name
-    #nhashes,nkeys = 1000,2  # lsh parameters
-    #min_rows, min_cols = 4,10 # row, col thresholds
-    #thr = 0.0            # probability threshold
-    #sparse = 0.8
-    #main(dataset, (nhashes,nkeys), (min_rows,min_cols), thr, sparse)
-    #print
-    
-    #print 'Soybean Small'
-    #dataset = 'soybean-small'    # dataset name
-    #nhashes,nkeys = 1000,2  # lsh parameters
-    #min_rows, min_cols = 4,8 # row, col thresholds
-    #thr = 0.1            # probability threshold
-    #sparse = 0.8
-    #main(dataset, (nhashes,nkeys), (min_rows,min_cols), thr, sparse)
     
     

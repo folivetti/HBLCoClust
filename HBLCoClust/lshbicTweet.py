@@ -117,7 +117,10 @@ def main(dataset, lshparams, (min_rows,min_cols), thr, sparse):
     # generate biclusters
     link( candata, bic.genbic, bicdata, (bic.getinfo(agdataO), probabilityO, thr, (min_rows,min_cols), sparse, False) )
     timer.send('Gen. Bicluster')
-   
+
+    #ic.InClose2( dataset, bic.getinfo(agdataO), min_rows, min_cols )
+    #timer.send('Gen. InClose2')
+    
     # Now do the same with the features as keys:
     
     # generate lsh keys and sort by the generated hash key
@@ -141,53 +144,18 @@ def main(dataset, lshparams, (min_rows,min_cols), thr, sparse):
     #pp.filterbics(bicdata)
     pp.merge(dataset)
     #pp.hierclust(dataset,7)
-    pp.uncovered(dataset, bic.getinfo(agdataO))
+    #pp.uncovered(dataset, bic.getinfo(agdataO))
     
     ev.stats(dataset)           # print some results statistics
-    ev.microprecision(dataset)  # calculate the microprecision if the objects have class embedded on their names
-    ev.NMI(dataset)
-    ev.PMI(dataset)
-
-    #ev.stats(dataset,'LSH')           # print some results statistics
-    #ev.microprecision(dataset,'LSH')  # calculate the microprecision if the objects have class embedded on their names
-    #ev.NMI(dataset,'LSH')
-    #ev.PMI(dataset,'LSH')
+    #ev.microprecision(dataset)  # calculate the microprecision if the objects have class embedded on their names
+    #net.genetwork(dataset)      # generate a network of objects and features
     
-if __name__ == "__main__":   
+if __name__ == "__main__":
+   
+    dataset = 'tweets'    # dataset name
+    nhashes,nkeys = 10,3  # lsh parameters
+    min_rows, min_cols = 100,5 # row, col thresholds
+    thr = 0.2            # probability threshold
+    sparse = 0.8            # sparseness rate
     
-    print 'House Votes 84 '
-    dataset = 'house-votes-84'    # dataset name
-    nhashes,nkeys = 1000,3  # lsh parameters
-    min_rows, min_cols = 10,10 # row, col thresholds
-    thr = 0.4            # probability threshold
-    sparse = 0.8            # sparseness rate    
     main(dataset, (nhashes,nkeys), (min_rows,min_cols), thr, sparse)
-    print
-    
-    #print 'Zoo'
-    #dataset = 'zoo'    # dataset name
-    #nhashes,nkeys = 1000,2  # lsh parameters
-    #min_rows, min_cols = 4,6 # row, col thresholds
-    #thr = 0.0             # probability threshold
-    #sparse = 1.0            # sparseness rate 
-    #main(dataset, (nhashes,nkeys), (min_rows,min_cols), thr, sparse)
-    #print
-    
-    #print 'Soybean Large'
-    #dataset = 'soybean-large'    # dataset name
-    #nhashes,nkeys = 1000,2  # lsh parameters
-    #min_rows, min_cols = 4,10 # row, col thresholds
-    #thr = 0.0            # probability threshold
-    #sparse = 0.8
-    #main(dataset, (nhashes,nkeys), (min_rows,min_cols), thr, sparse)
-    #print
-    
-    #print 'Soybean Small'
-    #dataset = 'soybean-small'    # dataset name
-    #nhashes,nkeys = 1000,2  # lsh parameters
-    #min_rows, min_cols = 4,8 # row, col thresholds
-    #thr = 0.1            # probability threshold
-    #sparse = 0.8
-    #main(dataset, (nhashes,nkeys), (min_rows,min_cols), thr, sparse)
-    
-    

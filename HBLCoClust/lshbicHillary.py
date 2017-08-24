@@ -117,9 +117,12 @@ def main(dataset, lshparams, (min_rows,min_cols), thr, sparse):
     # generate biclusters
     link( candata, bic.genbic, bicdata, (bic.getinfo(agdataO), probabilityO, thr, (min_rows,min_cols), sparse, False) )
     timer.send('Gen. Bicluster')
-   
-    # Now do the same with the features as keys:
+
+    #ic.InClose2( dataset, bic.getinfo(agdataO), min_rows, min_cols )
+    #timer.send('Gen. InClose2')
     
+    # Now do the same with the features as keys:
+    '''
     # generate lsh keys and sort by the generated hash key
     link( agdataF, lsh.genlsh, lshdata, (lshparams, probabilityF, thr,['']) )
     sortfile(lshdata,slshdata)        
@@ -135,7 +138,7 @@ def main(dataset, lshparams, (min_rows,min_cols), thr, sparse):
     # generate biclusters
     link( candata, bic.genbic, bicdata, (bic.getinfo(agdataO), probabilityO, thr, (min_rows,min_cols), sparse, True), append=True )
     timer.send('Gen. Bicluster')
-    
+    '''
     timer.close()
 
     #pp.filterbics(bicdata)
@@ -147,47 +150,24 @@ def main(dataset, lshparams, (min_rows,min_cols), thr, sparse):
     ev.microprecision(dataset)  # calculate the microprecision if the objects have class embedded on their names
     ev.NMI(dataset)
     ev.PMI(dataset)
+    #net.genetwork(dataset)      # generate a network of objects and features
 
     #ev.stats(dataset,'LSH')           # print some results statistics
     #ev.microprecision(dataset,'LSH')  # calculate the microprecision if the objects have class embedded on their names
     #ev.NMI(dataset,'LSH')
     #ev.PMI(dataset,'LSH')
     
-if __name__ == "__main__":   
-    
-    print 'House Votes 84 '
-    dataset = 'house-votes-84'    # dataset name
-    nhashes,nkeys = 1000,3  # lsh parameters
-    min_rows, min_cols = 10,10 # row, col thresholds
-    thr = 0.4            # probability threshold
+if __name__ == "__main__":
+
+    # HEY LISTEN!
+    # FILTER BICLUSTERS BY SORTING THEM AND SELECTING
+    # THOSE THAT COVER EVERYTHING FOUND
+    # AFTER THAT, APPLIES HIERARCHICAL CLUSTERING TO
+    # DEFINE MORE INFORMATIVE AND LARGE CLUSTERS
+   
+    dataset = 'EmailsHillary'    # dataset name
+    nhashes,nkeys = 2000,3  # lsh parameters
+    min_rows, min_cols = 10,3 # row, col thresholds
+    thr = 0.95            # probability threshold
     sparse = 0.8            # sparseness rate    
     main(dataset, (nhashes,nkeys), (min_rows,min_cols), thr, sparse)
-    print
-    
-    #print 'Zoo'
-    #dataset = 'zoo'    # dataset name
-    #nhashes,nkeys = 1000,2  # lsh parameters
-    #min_rows, min_cols = 4,6 # row, col thresholds
-    #thr = 0.0             # probability threshold
-    #sparse = 1.0            # sparseness rate 
-    #main(dataset, (nhashes,nkeys), (min_rows,min_cols), thr, sparse)
-    #print
-    
-    #print 'Soybean Large'
-    #dataset = 'soybean-large'    # dataset name
-    #nhashes,nkeys = 1000,2  # lsh parameters
-    #min_rows, min_cols = 4,10 # row, col thresholds
-    #thr = 0.0            # probability threshold
-    #sparse = 0.8
-    #main(dataset, (nhashes,nkeys), (min_rows,min_cols), thr, sparse)
-    #print
-    
-    #print 'Soybean Small'
-    #dataset = 'soybean-small'    # dataset name
-    #nhashes,nkeys = 1000,2  # lsh parameters
-    #min_rows, min_cols = 4,8 # row, col thresholds
-    #thr = 0.1            # probability threshold
-    #sparse = 0.8
-    #main(dataset, (nhashes,nkeys), (min_rows,min_cols), thr, sparse)
-    
-    
