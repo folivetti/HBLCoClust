@@ -14,27 +14,31 @@ module Main where
 import System.Environment
 import Data.List (genericLength, maximum)
 import Data.List.Split
-import Text.Format
+import Text.Printf
 import qualified Data.HashSet as S
 import qualified Data.HashMap.Strict as M
 
+import qualified Data.ByteString.Lazy as B
+import qualified Data.ByteString.Lazy.Char8 as C
+
+
 -- |'parseFile' parses a space separated file 
 -- to a list of lists of Double
-parseFile :: String -> M.HashMap String (S.HashSet String)
-parseFile file = M.fromList $ map parseLine (lines file )
+parseFile :: B.ByteString -> M.HashMap B.ByteString (S.HashSet B.ByteString)
+parseFile file = M.fromList $ map parseLine (C.lines file )
   where
-    parseLine line = let wl = words line in (head wl, S.fromList $ tail wl)
+    parseLine line = let wl = C.words line in (head wl, S.fromList $ tail wl)
 
 -- |'parseBic' parses the bicluster file to a list of tuples
 -- representing the rows and columns of a bicluster, respectively
-parseBic :: String -> [([String], [String])]
-parseBic file = map parseLine $ lines file
+parseBic :: B.ByteString -> [([B.ByteString], [B.ByteString])]
+parseBic file = map parseLine $ C.lines file
   where
-    parseLine line = let (o,f) = span (/=',') line 
-                     in  (words o, words $ tail f)
+    parseLine line = let (o,f) = C.span (/=',') line 
+                     in  (C.words o, C.words $ B.tail f)
 
 -- |'mean' calculates the mean of a list of numbers
-mean :: (Real a, Fractional b) => [a] -> b
+mean :: (Real a) => [a] -> Float
 mean xs = realToFrac (sum xs) / (genericLength xs)
 
 -- |'std' calculates the std of a list of numbers
@@ -51,8 +55,7 @@ coverage xs = fromIntegral $ S.size $ S.unions $ map S.fromList xs
 calcPurity xs = maximum counts / sum counts
   where
     counts = M.elems $ M.fromListWith (+) $ zip (map extractLabel xs) (repeat 1)
-    extractLabel w = toInteger $ tail $ snd $ span (/='.') w
-    toInteger x = read x :: Integer
+    extractLabel w = B.tail $ snd $ C.span (/='.') w
 
 -- |'main' executa programa principal
 main :: IO ()
@@ -62,10 +65,10 @@ main = do
     let
       dataName  = args !! 0
 
-    fileIn   <- readFile $ "Datasets/" ++ dataName ++ ".data"
-    fileRev  <- readFile $ "Datasets/" ++ dataName ++ "_R.data"
-    fileReg  <- readFile $ "Biclusters/" ++ dataName ++ ".region.sorted"
-    fileBic  <- readFile $ "Biclusters/" ++ dataName ++ ".biclusters.sorted"
+    fileIn   <- B.readFile $ "Datasets/" ++ dataName ++ ".data"
+    fileRev  <- B.readFile $ "Datasets/" ++ dataName ++ "_R.data"
+    fileReg  <- B.readFile $ "Biclusters/" ++ dataName ++ ".region.sorted"
+    fileBic  <- B.readFile $ "Biclusters/" ++ dataName ++ ".biclusters.sorted"
 
     let
       dataset    = parseFile fileIn
@@ -76,10 +79,13 @@ main = do
       nrows'      = map genericLength $ map fst regions
       ncols'      = map genericLength $ map snd regions
 
+      meanrows'   = mean nrows'
+      stdrows'    = std nrows' :: Double
+
       covrows'    = coverage $ map fst regions
-      perrows'    = covrows' / fromIntegral (M.size dataset)
+      perrows'    = covrows' / fromIntegral (M.size dataset) :: Double
       covcols'    = coverage $ map snd regions
-      percols'    = covcols' / fromIntegral  (M.size dataRev)
+      percols'    = covcols' / fromIntegral  (M.size dataRev) :: Double
 
       purity'     = map calcPurity $ map fst regions
 
@@ -87,27 +93,26 @@ main = do
       ncols      = map genericLength $ map snd biclusters
 
       covrows    = coverage $ map fst biclusters
-      perrows    = covrows / fromIntegral (M.size dataset)
+      perrows    = covrows / fromIntegral (M.size dataset) :: Double
       covcols    = coverage $ map snd biclusters
-      percols    = covcols / fromIntegral  (M.size dataRev)
+      percols    = covcols / fromIntegral  (M.size dataRev) :: Double
 
       purity     = map calcPurity $ map fst biclusters
 
     putStrLn "Regions: "
-    putStrLn $ format "Number of biclusters = {0}" [show $ genericLength regions]
-    putStrLn $ format "Avg. rows = {0} +/- {1}" [show $ mean nrows', show $ std nrows']
-    putStrLn $ format "Avg. cols = {0} +/- {1}" [show $ mean ncols', show $ std ncols']
+    putStrLn $ printf "Number of biclusters = %d" (genericLength regions :: Integer)
+    putStrLn $ printf "Avg. rows = %.2f +/- %.2f" meanrows' stdrows'
+    putStrLn $ printf "Avg. cols = %.2f +/- %.2f" (mean ncols') (std ncols' :: Double)
     putStrLn "Coverage:"
-    putStrLn $ format "  rows = {0}% ({1}/{2})" [show $ 100*perrows', show $ covrows', show $ M.size dataset]
-    putStrLn $ format "  cols = {0}% ({1}/{2})" [show $ 100*percols', show $ covcols', show $ M.size dataRev]
-    putStrLn $ format "Purity: {0}" [show $ mean purity']
-
+    putStrLn $ printf "  rows = %.2f%% (%f/%d)" (100.0*perrows') (covrows') (M.size dataset)
+    putStrLn $ printf "  cols = %.2f%% (%f/%d)" (100.0*percols') (covcols') (M.size dataRev)
+    putStrLn $ printf "Purity: %.4f" (mean purity')
     putStrLn ""
     putStrLn "Biclusters: "
-    putStrLn $ format "Number of biclusters = {0}" [show $ genericLength biclusters]
-    putStrLn $ format "Avg. rows = {0} +/- {1}" [show $ mean nrows, show $ std nrows]
-    putStrLn $ format "Avg. cols = {0} +/- {1}" [show $ mean ncols, show $ std ncols]
+    putStrLn $ printf "Number of biclusters = %d" (genericLength biclusters :: Integer)
+    putStrLn $ printf "Avg. rows = %.2f +/- %.2f" (mean nrows) (std nrows :: Double)
+    putStrLn $ printf "Avg. cols = %.2f +/- %.2f" (mean ncols) (std ncols :: Double)
     putStrLn "Coverage:"
-    putStrLn $ format "  rows = {0}% ({1}/{2})" [show $ 100*perrows, show $ covrows, show $ M.size dataset]
-    putStrLn $ format "  cols = {0}% ({1}/{2})" [show $ 100*percols, show $ covcols, show $ M.size dataRev]
-    putStrLn $ format "Purity: {0}" [show $ mean purity]
+    putStrLn $ printf "  rows = %.2f%% (%f/%d)" (100.0*perrows) (covrows) (M.size dataset)
+    putStrLn $ printf "  cols = %.2f%% (%f/%d)" (100.0*percols) (covcols) (M.size dataRev)
+    putStrLn $ printf "Purity: %.4f" (mean purity)

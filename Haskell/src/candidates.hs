@@ -11,19 +11,20 @@ group the objects by lsh keys to become subspace regions to search for bicluster
 
 module Main where
 
-import Streaming
-import qualified Streaming.Prelude as S
 import System.Environment
-import Data.List (intercalate)
-import Data.Hashable (hash)
-import Text.Format
+import Data.List (groupBy)
+
+import qualified Data.ByteString.Lazy as B
+import qualified Data.ByteString.Lazy.Char8 as C
+
+sep = C.pack " "
 
 -- |'parseFile' parses a space separated file 
 -- to a list of lists of Double
-parseFile :: String -> (String, String)
+parseFile :: B.ByteString -> (B.ByteString, B.ByteString)
 parseFile line = (head wl, last wl)
   where
-    wl = words line
+    wl = C.words line
 
 -- |'main' executa programa principal
 main :: IO ()
@@ -37,10 +38,20 @@ main = do
       fileIn  = "LSH/" ++ dataName ++ ".lsh.sorted"
       fileOut = "Candidates/" ++ dataName ++ ".cand"
 
+    content <- B.readFile fileIn
+    B.writeFile fileOut $ C.unlines
+                        $ map (B.intercalate sep)
+                        $ map (map snd)
+                        $ filter (\xs -> length xs >= nrows)
+                        $ groupBy (\x y -> fst x == fst y)
+                        $ map parseFile 
+                        $ C.lines content
+{-
     runResourceT $ S.writeFile fileOut
-                 $ S.map (intercalate " ")
+                 $ S.map (B.intercalate sep)
                  $ S.map (map snd)
                  $ S.filter (\xs -> length xs >= nrows) 
                  $ mapped S.toList 
                  $ S.groupBy (\x y -> fst x == fst y) 
                  $ S.map parseFile $ S.readFile fileIn
+-}

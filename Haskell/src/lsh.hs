@@ -12,38 +12,44 @@ applies LSH to categorical data for the first step of the HBLCoClust algorithm. 
 module Main where
 
 import System.Random
-import Streaming
-import qualified Streaming.Prelude as S
 import System.Environment
 import qualified Data.List.Split as Sp (chunksOf)
 
 import Data.List (minimum, intercalate, sort)
 import Data.Hashable (hash)
-import Text.Format
+
+import qualified Data.ByteString.Lazy as B
+import qualified Data.ByteString.Lazy.Char8 as C
+import Data.ByteString.Builder
+
+sepUnder = C.pack "_"
+sepSpace = C.pack " "
 
 -- |'parseFile' parses a space separated file 
 -- to a list of lists of Double
-parseFile :: String -> (String, [String])
+parseFile :: B.ByteString -> (B.ByteString, [B.ByteString])
 parseFile line = (head wl, tail wl)
   where
-    wl = words line
+    wl = C.words line
 
 largeprime = 109297
 
-hash' :: (Int, Int) -> Int -> Int
-hash' (n1, n2) h = (n1*h + n2) `mod` largeprime
+hash' :: (Word, Word) -> Word -> Word
+hash' (n1, n2) h = (n1*h + n2) `rem` largeprime
+
+word2byte = toLazyByteString . wordDec
 
 -- |'lsh' generates 'r' LSH signatures with 'b' hashes each
-lsh :: Int -> Int -> [(Int,Int)] -> (String, [String]) -> [String]
+lsh :: Int -> Int -> [(Word,Word)] -> (B.ByteString, [B.ByteString]) -> [B.ByteString]
 lsh r b rnd (label, ws) = map output lshSigns
   where
-    output signature = format "{0} {1}" [signature, label]
-    lshSigns         = sort $ map (intercalate "_") lshList
-    lshList          = map addIdx $ zip (Sp.chunksOf b minhash) [1..]
-    addIdx (xs, idx) = show idx : xs
+    output signature = B.intercalate sepSpace [signature, label]
+    lshSigns         = sort $ map (B.intercalate sepUnder) lshList
+    lshList          = map addIdx $ zip [1..] (Sp.chunksOf b minhash)
+    addIdx (idx, xs) = word2byte idx : xs
     minhash          = map genSignature rnd
-    genSignature n   = show $ minimum $ map (hash' n) hashedWords
-    hashedWords      = map hash ws
+    genSignature n   = word2byte $ minimum $ map (hash' n) hashedWords
+    hashedWords      = map (\w -> fromIntegral (hash w) :: Word) ws
 
 -- |'main' runs the main program
 main :: IO ()
@@ -64,5 +70,10 @@ main = do
       rnd = zip n1 n2
       lsh' = lsh r b rnd
 
-    -- stream the input into parseFile -> lsh' and into the output
-    runResourceT $ S.writeFile fileOut $ S.map unlines $ S.map lsh' $ S.map parseFile $ S.readFile fileIn
+    content <- B.readFile fileIn
+    let output = C.unlines 
+               $ map C.unlines 
+               $ map lsh'
+               $ map parseFile 
+               $ C.lines content
+    B.writeFile fileOut output

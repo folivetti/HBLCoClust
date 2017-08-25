@@ -13,29 +13,33 @@ module Main where
 
 import System.Environment
 import Data.List (intercalate, all)
-import Text.Format
+
 import qualified Data.HashSet as S
 import qualified Data.HashMap.Strict as M
+
+import qualified Data.ByteString.Lazy as B
+import qualified Data.ByteString.Lazy.Char8 as C
 
 -- | support functions and operators
 
 (∩) s1 s2 =  S.intersection s1 s2
 
-toString (os, fs) = (intercalate " " os) ++ "," ++ (intercalate " " fs)
+sepSpace = C.pack " "
+sepComma = C.pack ","
+
+toString (os,fs) = B.intercalate sepComma [B.intercalate sepSpace os, B.intercalate sepSpace fs]
 
 -- |'parseFile' parses a space separated file 
 -- to a list of lists of Double
-parseFile :: String -> M.HashMap String (S.HashSet String)
-parseFile file = M.fromList $ map parseLine (lines file )
+parseFile :: B.ByteString -> M.HashMap B.ByteString (S.HashSet B.ByteString)
+parseFile file = M.fromList $ map parseLine (C.lines file )
   where
-    parseLine line = let wl = words line in (head wl, S.fromList $ tail wl)
+    parseLine line = let wl = C.words line in (head wl, S.fromList $ tail wl)
 
 -- |'parseRegion' parses the .region file
 -- containing a list of features to explore
-parseRegion :: String -> [[String]]
-parseRegion file = map parseLine $ lines file
-  where
-    parseLine line = words line
+parseRegion :: B.ByteString -> [[B.ByteString]]
+parseRegion file = map C.words $ C.lines file
 
 -- |'inClose' algorithm
 inClose dataset dataRev nrows ncols feats = inClose' (firstFeat, extent firstFeat, [firstFeat])
@@ -77,9 +81,9 @@ main = do
       nrows    = read (args !! 1) :: Int
       ncols    = read (args !! 2) :: Int
 
-    fileIn     <- readFile $ "Datasets/" ++ dataName ++ ".data"
-    fileRev    <- readFile $ "Datasets/" ++ dataName ++ "_R.data"
-    fileRegion <- readFile $ "Biclusters/" ++ dataName ++ ".expanded.sorted"
+    fileIn     <- B.readFile $ "Datasets/" ++ dataName ++ ".data"
+    fileRev    <- B.readFile $ "Datasets/" ++ dataName ++ "_R.data"
+    fileRegion <- B.readFile $ "Biclusters/" ++ dataName ++ ".expanded.sorted"
 
     let
       dataset    = parseFile fileIn
@@ -88,5 +92,5 @@ main = do
       biclusters = concat $ map (inClose dataset dataRev nrows ncols) regions
       fileOut    = "Biclusters/" ++ dataName ++ ".biclusters"
 
-    writeFile fileOut (unlines $ map toString biclusters)
+    B.writeFile fileOut (C.unlines $ map toString biclusters)
 
