@@ -28,6 +28,13 @@
   (major1) == 0 && (major2) <  2 || \
   (major1) == 0 && (major2) == 2 && (minor) <= 8)
 
+/* package containers-0.5.7.1 */
+#define VERSION_containers "0.5.7.1"
+#define MIN_VERSION_containers(major1,major2,minor) (\
+  (major1) <  0 || \
+  (major1) == 0 && (major2) <  5 || \
+  (major1) == 0 && (major2) == 5 && (minor) <= 7)
+
 /* package hashable-1.2.6.1 */
 #define VERSION_hashable "1.2.6.1"
 #define MIN_VERSION_hashable(major1,major2,minor) (\

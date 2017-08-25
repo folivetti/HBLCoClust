@@ -65,7 +65,7 @@ executable candidates
   
 executable regions
   main-is:             regions.hs
-  build-depends:       base >=4.9 && <4.10, unordered-containers, bytestring
+  build-depends:       base >=4.9 && <4.10, unordered-containers, bytestring, containers
   hs-source-dirs:      src
   default-language:    Haskell2010
   ghc-options:         -O2 -funfolding-use-threshold=16 -fexcess-precision -optc-ffast-math
