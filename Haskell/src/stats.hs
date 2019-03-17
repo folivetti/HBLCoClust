@@ -18,24 +18,24 @@ import Text.Printf
 import qualified Data.HashSet as S
 import qualified Data.HashMap.Strict as M
 
-import qualified Data.ByteString.Lazy as B
-import qualified Data.ByteString.Lazy.Char8 as C
+import qualified Data.Text.Lazy as T
+import qualified Data.Text.Lazy.IO as I
 
 
 -- |'parseFile' parses a space separated file 
 -- to a list of lists of Double
-parseFile :: B.ByteString -> M.HashMap B.ByteString (S.HashSet B.ByteString)
-parseFile file = M.fromList $ map parseLine (C.lines file )
+parseFile :: T.Text -> M.HashMap T.Text (S.HashSet T.Text)
+parseFile file = M.fromList $ map parseLine (T.lines file )
   where
-    parseLine line = let wl = C.words line in (head wl, S.fromList $ tail wl)
+    parseLine line = let wl = T.words line in (head wl, S.fromList $ tail wl)
 
 -- |'parseBic' parses the bicluster file to a list of tuples
 -- representing the rows and columns of a bicluster, respectively
-parseBic :: B.ByteString -> [([B.ByteString], [B.ByteString])]
-parseBic file = map parseLine $ C.lines file
+parseBic :: T.Text -> [([T.Text], [T.Text])]
+parseBic file = map parseLine $ T.lines file
   where
-    parseLine line = let (o,f) = C.span (/=',') line 
-                     in  (C.words o, C.words $ B.tail f)
+    parseLine line = let (o,f) = T.span (/=',') line 
+                     in  (T.words o, T.words $ T.tail f)
 
 -- |'mean' calculates the mean of a list of numbers
 mean :: (Real a) => [a] -> Float
@@ -55,7 +55,7 @@ coverage xs = fromIntegral $ S.size $ S.unions $ map S.fromList xs
 calcPurity xs = maximum counts / sum counts
   where
     counts = M.elems $ M.fromListWith (+) $ zip (map extractLabel xs) (repeat 1)
-    extractLabel w = B.tail $ snd $ C.span (/='.') w
+    extractLabel w = T.tail $ snd $ T.span (/='.') w
 
 -- |'main' executa programa principal
 main :: IO ()
@@ -65,10 +65,10 @@ main = do
     let
       dataName  = args !! 0
 
-    fileIn   <- B.readFile $ "Datasets/" ++ dataName ++ ".data"
-    fileRev  <- B.readFile $ "Datasets/" ++ dataName ++ "_R.data"
-    fileReg  <- B.readFile $ "Biclusters/" ++ dataName ++ ".region.sorted"
-    fileBic  <- B.readFile $ "Biclusters/" ++ dataName ++ ".biclusters.sorted"
+    fileIn   <- I.readFile $ "Datasets/" ++ dataName ++ ".data"
+    fileRev  <- I.readFile $ "Datasets/" ++ dataName ++ "_R.data"
+    fileReg  <- I.readFile $ "Biclusters/" ++ dataName ++ ".region.sorted"
+    fileBic  <- I.readFile $ "Biclusters/" ++ dataName ++ ".biclusters.sorted"
 
     let
       dataset    = parseFile fileIn

@@ -11,4 +11,5 @@ scripts/sortcommand Biclusters/$1.region
 scripts/sortcommand Biclusters/$1.expanded
 bin/inclose $1 $4 $5
 scripts/sortcommand Biclusters/$1.biclusters
-bin/stats $1
+bin/statsNoClass $1
+#bin/stats $1

@@ -17,19 +17,26 @@ import Data.Ord
 import qualified Data.Set as S
 import qualified Data.HashMap.Strict as M
 
-import qualified Data.ByteString.Lazy as B
-import qualified Data.ByteString.Lazy.Char8 as C
+import qualified Data.Text.Lazy as T
+import qualified Data.Text.Lazy.IO as I
 
-type StringSet = S.Set B.ByteString
-type Dataset   = M.HashMap B.ByteString StringSet
+type StringSet = S.Set T.Text
+type Dataset   = M.HashMap T.Text StringSet
 
 -- | support functions and operators
 
-sepSpace = C.pack " "
-sepComma = C.pack ","
+debugMap :: Dataset -> T.Text -> StringSet
+debugMap map' elem = do
+                      let maybeV = M.lookup elem map'
+                      case maybeV of 
+                           Just v -> v
+                           Nothing -> error $ (show elem) ++ " not found"
 
-toString (o,f) = B.intercalate sepComma [B.intercalate sepSpace $ S.toList o, B.intercalate sepSpace $ S.toList f]
-toStringFeat f = B.intercalate sepSpace $ S.toList f
+sepSpace = T.pack " "
+sepComma = T.pack ","
+
+toString (o,f) = T.intercalate sepComma [T.intercalate sepSpace $ S.toList o, T.intercalate sepSpace $ S.toList f]
+toStringFeat f = T.intercalate sepSpace $ S.toList f
 
 sortedUnique xs = map head $ groupBy (==) $ sort xs
 
@@ -38,27 +45,27 @@ sortedUnique xs = map head $ groupBy (==) $ sort xs
 
 -- |'parseFile' parses a space separated file 
 -- to a list of lists of Double
-parseFile :: B.ByteString -> Dataset
-parseFile file = M.fromList $ map parseLine (C.lines file )
+parseFile :: T.Text -> Dataset
+parseFile file = M.fromList $ map parseLine (T.lines file )
   where
-    parseLine line = let wl = C.words line in (head wl, S.fromList $ tail wl)
+    parseLine line = let wl = T.words line in (head wl, S.fromList $ tail wl)
 
 -- |'parseCand' parses the .candidates file
-parseCand :: B.ByteString -> [[B.ByteString]]
-parseCand file = map C.words $ C.lines file
+parseCand :: T.Text -> [[T.Text]]
+parseCand file = map T.words $ T.lines file
 
 -- |'findRegions' returns the region defined by a list of objects.
 --  The region is formed by the features common to every obj and
 -- the objects common to every feature of feats'.
-findRegions :: Dataset -> Dataset -> [[B.ByteString]] -> [(StringSet,StringSet)]
+findRegions :: Dataset -> Dataset -> [[T.Text]] -> [(StringSet,StringSet)]
 findRegions dataset dataRev candidates = map getIntersection candidates
   where
     getIntersection objs = 
       let
         objs'  = if S.size feats' > 0 
-                 then foldl1 (∩) $ map (dataRev M.!) $ S.toList feats' 
+                 then foldl1 (∩) $ map (dataRev M.!) $ S.toList feats'  -- (dataRev M.!)
                  else S.empty
-        feats' = foldl1 (∩) $ map (dataset M.!) objs
+        feats' = foldl1 (∩) $ map (dataset M.!) objs --map (dataset M.!) objs
       in (objs', feats')
 
 -- |'expand' expands the region further by allowing features with at least 
@@ -95,9 +102,9 @@ main = do
       nrows   = read (args !! 1) :: Int
       ncols   = read (args !! 2) :: Int
 
-    fileIn   <- B.readFile $ "Datasets/" ++ dataName ++ ".data"
-    fileRev  <- B.readFile $ "Datasets/" ++ dataName ++ "_R.data"
-    fileCand <- B.readFile $ "Candidates/" ++ dataName ++ ".cand.sorted"
+    fileIn   <- I.readFile $ "Datasets/" ++ dataName ++ ".data"
+    fileRev  <- I.readFile $ "Datasets/" ++ dataName ++ "_R.data"
+    fileCand <- I.readFile $ "Candidates/" ++ dataName ++ ".cand.sorted"
 
     let
       dataset    = parseFile fileIn
@@ -108,5 +115,5 @@ main = do
       expanded   = reduce $ sortBy bySize $ expand dataset dataRev nrows ncols regions
       fileOut1    = "Biclusters/" ++ dataName ++ ".region"
       fileOut2    = "Biclusters/" ++ dataName ++ ".expanded"
-    B.writeFile fileOut1 (C.unlines $ map toString regions)
-    B.writeFile fileOut2 (C.unlines $ map toStringFeat expanded)
+    I.writeFile fileOut1 (T.unlines $ map toString regions)
+    I.writeFile fileOut2 (T.unlines $ map toStringFeat expanded)

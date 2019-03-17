@@ -51,35 +51,42 @@ cabal-version:       >=1.10
 
 executable inclose
   main-is:             inclose.hs
-  build-depends:       base >=4.9 && <4.10, unordered-containers, bytestring
+  build-depends:       base >=4.9 && <4.10, unordered-containers, text
   hs-source-dirs:      src
   default-language:    Haskell2010
   ghc-options:         -O2 -funfolding-use-threshold=16 -fexcess-precision -optc-ffast-math
   
 executable candidates
   main-is:             candidates.hs
-  build-depends:       base >=4.9 && <4.10, bytestring
+  build-depends:       base >=4.9 && <4.10, text
   hs-source-dirs:      src
   default-language:    Haskell2010
   ghc-options:         -O2 -funfolding-use-threshold=16 -fexcess-precision -optc-ffast-math
   
 executable regions
   main-is:             regions.hs
-  build-depends:       base >=4.9 && <4.10, unordered-containers, bytestring, containers
+  build-depends:       base >=4.9 && <4.10, unordered-containers, text, containers
   hs-source-dirs:      src
   default-language:    Haskell2010
-  ghc-options:         -O2 -funfolding-use-threshold=16 -fexcess-precision -optc-ffast-math
+  ghc-options:         -O2 -funfolding-use-threshold=16 -fexcess-precision -optc-ffast-math 
   
 executable lsh
   main-is:             lsh.hs
-  build-depends:       base >=4.9 && <4.10, hashable, split, random, bytestring
+  build-depends:       base >=4.9 && <4.10, hashable, split, random, text
   hs-source-dirs:      src
   default-language:    Haskell2010
   ghc-options:         -O2 -funfolding-use-threshold=16 -fexcess-precision -optc-ffast-math
   
 executable stats
   main-is:             stats.hs
-  build-depends:       base >=4.9 && <4.10, split, unordered-containers, bytestring
+  build-depends:       base >=4.9 && <4.10, split, unordered-containers, text
+  hs-source-dirs:      src
+  default-language:    Haskell2010
+  ghc-options:         -O2 -funfolding-use-threshold=16 -fexcess-precision -optc-ffast-math
+  
+executable statsNoClass
+  main-is:             statsNoClass.hs
+  build-depends:       base >=4.9 && <4.10, split, unordered-containers, text
   hs-source-dirs:      src
   default-language:    Haskell2010
   ghc-options:         -O2 -funfolding-use-threshold=16 -fexcess-precision -optc-ffast-math

@@ -14,17 +14,17 @@ module Main where
 import System.Environment
 import Data.List (groupBy)
 
-import qualified Data.ByteString.Lazy as B
-import qualified Data.ByteString.Lazy.Char8 as C
+import qualified Data.Text.Lazy as T
+import qualified Data.Text.Lazy.IO as I
 
-sep = C.pack " "
+sep = T.pack " "
 
 -- |'parseFile' parses a space separated file 
 -- to a list of lists of Double
-parseFile :: B.ByteString -> (B.ByteString, B.ByteString)
+parseFile :: T.Text -> (T.Text, T.Text)
 parseFile line = (head wl, last wl)
   where
-    wl = C.words line
+    wl = T.words line
 
 -- |'main' executa programa principal
 main :: IO ()
@@ -38,14 +38,14 @@ main = do
       fileIn  = "LSH/" ++ dataName ++ ".lsh.sorted"
       fileOut = "Candidates/" ++ dataName ++ ".cand"
 
-    content <- B.readFile fileIn
-    B.writeFile fileOut $ C.unlines
-                        $ map (B.intercalate sep)
+    content <- I.readFile fileIn
+    I.writeFile fileOut $ T.unlines
+                        $ map (T.intercalate sep)
                         $ map (map snd)
                         $ filter (\xs -> length xs >= nrows)
                         $ groupBy (\x y -> fst x == fst y)
                         $ map parseFile 
-                        $ C.lines content
+                        $ T.lines content
 {-
     runResourceT $ S.writeFile fileOut
                  $ S.map (B.intercalate sep)

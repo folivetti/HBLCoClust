@@ -14,12 +14,12 @@
   (major1) == 4 && (major2) <  9 || \
   (major1) == 4 && (major2) == 9 && (minor) <= 1)
 
-/* package bytestring-0.10.8.1 */
-#define VERSION_bytestring "0.10.8.1"
-#define MIN_VERSION_bytestring(major1,major2,minor) (\
-  (major1) <  0 || \
-  (major1) == 0 && (major2) <  10 || \
-  (major1) == 0 && (major2) == 10 && (minor) <= 8)
+/* package text-1.2.2.1 */
+#define VERSION_text "1.2.2.1"
+#define MIN_VERSION_text(major1,major2,minor) (\
+  (major1) <  1 || \
+  (major1) == 1 && (major2) <  2 || \
+  (major1) == 1 && (major2) == 2 && (minor) <= 2)
 
 /* package unordered-containers-0.2.8.0 */
 #define VERSION_unordered_containers "0.2.8.0"
