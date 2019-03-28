@@ -66,8 +66,10 @@ main = do
       fileIn  = "Datasets/" ++ dataName ++ ".data"
       fileOut = "LSH/" ++ dataName ++ ".lsh"
 
-      n1 = take (r*b) (randomRs (1, largeprime-1) g)
-      n2 = take (r*b) (randomRs (1, largeprime-1) g)
+      (g1, g2) = split g
+      
+      n1 = take (r*b) (randomRs (1, largeprime-1) g1)
+      n2 = take (r*b) (randomRs (1, largeprime-1) g2)
       rnd = zip n1 n2
       lsh' = lsh r b rnd
 
